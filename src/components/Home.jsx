@@ -1,22 +1,31 @@
-import { useEffect, useState } from "react"
-import "./style/home.css"
+import { useState } from "react"
+import "./Style/home.css"
+import { useEffect } from "react"
 
 function Home() {
-
-  const [companydata,setCompanyData] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error,setError] = useState(null)
+  const [companydata, setCompanyData] = useState([]);
+  const [blogs, setBlogs] = useState([]);
+  const [team, setTeam] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('')
-    .then((response) => {
-        if (!response.ok) {
-          throw new Error("Backendda muammo yuz berdi");
+    Promise.all([
+      fetch("http://127.0.0.1:8000/api/projects/"),
+      fetch("http://127.0.0.1:8000/api/blogs/"),
+      fetch("http://127.0.0.1:8000/api/team/")
+    ])
+      .then(async ([projectsRes, blogsRes, teamRes]) => {
+        if (!projectsRes.ok || !blogsRes.ok || !teamRes.ok) {
+          throw new Error("Ma'lumotlarni olishda xatolik yuz berdi");
         }
-        return response.json();
-      })
-      .then((data) => {
-        setCompanyData(data);
+        const projectsData = await projectsRes.json();
+        const blogsData = await blogsRes.json();
+        const teamData = await teamRes.json();
+
+        setCompanyData(projectsData);
+        setBlogs(blogsData);
+        setTeam(teamData);
         setLoading(false);
       })
       .catch((err) => {
@@ -24,25 +33,13 @@ function Home() {
         setLoading(false);
       });
   }, []);
-  
-  //   .then((response)) => 
-  //     if(!response.ok) {
-  //       setError("Backendda") }
-  //     return response.json()
-  //   })
-  // .then ((data) => {
-  //   setCompanyData(data)
-  //   setLoading(false)
-  // })
-  // .catch((err)) => {
-  //   setError(err.message)
-  // }, [])
 
-  if(!loading) {
-    <h1>Yuklanmoqda...</h1>
+  if (loading) {
+    return <h1>Yuklanmoqda...</h1>;
   }
-  if (!error) {
-    <h1>Malumotlarni olishda xato</h1>
+
+  if (error) {
+    return <h1>{error}</h1>;
   }
 
   return (
@@ -50,24 +47,28 @@ function Home() {
       {/* Header */}
       <header className="header">
         <div className="container">
-          <div className="logo">Logo</div>
-          <nav className="nav">
-            <a href="#" className="nav-link">
-              Bosh sahifa
-            </a>
-            <a href="#" className="nav-link">
-              Loyihalar
-            </a>
-            <a href="#" className="nav-link">
-              Biz haqimizda
-            </a>
-            <a href="#" className="nav-link">
-              Xizmatlar
-            </a>
-          </nav>
-          <div className="header-contact">
-            <span className="phone">+998 97 777 77</span>
-            <button className="contact-btn">Bog'lanish</button>
+          <div className="header-content">
+            <div className="logo">
+              <h2>Logo</h2>
+            </div>
+            <nav className="nav">
+              <a href="#" className="nav-link">
+                Kompaniya
+              </a>
+              <a href="#" className="nav-link">
+                Loyihalar
+              </a>
+              <a href="#" className="nav-link">
+                Xizmatlar
+              </a>
+              <a href="#" className="nav-link">
+                Kontaktlar
+              </a>
+            </nav>
+            <div className="header-contact">
+              <span className="phone">+998 99 123 45 67</span>
+              <button className="cta-button">Bog'lanish</button>
+            </div>
           </div>
         </div>
       </header>
@@ -79,12 +80,14 @@ function Home() {
             <div className="hero-text">
               <h1>Biz veb-saytlar, ilovalarni ishlab chiqamiz</h1>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua.
+                Zamonaviy texnologiyalar yordamida sizning biznesingiz uchun professional veb-saytlar va mobil ilovalar
+                yaratamiz. Bizning tajribali jamoamiz har bir loyihaga individual yondashadi.
               </p>
-              <button className="cta-btn">Batafsil</button>
+              <button className="hero-button">Batafsil</button>
             </div>
-            <div className="hero-circle"></div>
+            <div className="hero-visual">
+              <div className="hero-circle"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -96,58 +99,98 @@ function Home() {
             <div className="stats-text">
               <h2>Kompaniya haqida</h2>
               <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et
-                dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                Bizning kompaniyamiz 5 yildan ortiq vaqt davomida raqamli yechimlar sohasida faoliyat yuritadi. Biz
+                mijozlarimizning ehtiyojlarini tushunib, ularning biznesini rivojlantirishga yordam beramiz.
+              </p>
+              <p>
+                Har bir loyiha uchun individual yondashuv va zamonaviy texnologiyalardan foydalanish bizning asosiy
+                tamoyillarimizdir.
               </p>
             </div>
-            <div className="stats-grid">
+            <div className="stats-numbers">
               <div className="stat-item">
-                <div className="stat-number">20+</div>
-                <div className="stat-label">4 yillik tajriba</div>
+                <span className="stat-number">20+</span>
+                <span className="stat-label">Yil tajriba</span>
               </div>
               <div className="stat-item">
-                <div className="stat-number">100+</div>
-                <div className="stat-label">4 yillik tajriba</div>
+                <span className="stat-number">4 yoqda</span>
+                <span className="stat-label">Olib borilgan loyihalar</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">15+</span>
+                <span className="stat-label">Mutaxassislar</span>
+              </div>
+              <div className="stat-item">
+                <span className="stat-number">4 yoqda</span>
+                <span className="stat-label">Mamnun mijozlar</span>
               </div>
             </div>
           </div>
         </div>
       </section>
 
+
+
       {/* Services Section */}
       <section className="services">
         <div className="container">
-          <h2 className="section-title">Bizning xizmatlarimiz</h2>
+          <h2 className="section-title">Bizning afzalliklarimiz</h2>
           <div className="services-grid">
             <div className="service-card">
-              <div className="service-icon">🎯</div>
-              <h3>Saytlar yaratamiz</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>🎯</span>
+                </div>
+              </div>
+              <h3>Individual yondashuv</h3>
+              <p>
+                Har bir mijoz uchun maxsus yechimlar ishlab chiqamiz va ularning biznes ehtiyojlarini hisobga olamiz.
+              </p>
             </div>
             <div className="service-card">
-              <div className="service-icon">⚡</div>
-              <h3>Dizaynlar</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>⚡️</span>
+                </div>
+              </div>
+              <h3>Tezkorlik</h3>
+              <p>Loyihalarni belgilangan muddatlarda sifatli va tezkor tarzda amalga oshiramiz.</p>
             </div>
             <div className="service-card">
-              <div className="service-icon">🚀</div>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>🚀</span>
+                </div>
+              </div>
               <h3>Professional xizmat</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <p>Zamonaviy texnologiyalar va eng so'nggi trendlardan foydalanib professional xizmat ko'rsatamiz.</p>
             </div>
             <div className="service-card">
-              <div className="service-icon">🎯</div>
-              <h3>Saytlar yaratamiz</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>🎯</span>
+                </div>
+              </div>
+              <h3>Individual yondashuv</h3>
+              <p>Mijozlarimizning har bir talabini diqqat bilan o'rganib, eng yaxshi yechimlarni taklif etamiz.</p>
             </div>
             <div className="service-card">
-              <div className="service-icon">⚡</div>
-              <h3>Dizaynlar</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>⚡️</span>
+                </div>
+              </div>
+              <h3>Tezkorlik</h3>
+              <p>Vaqtni tejash va samaradorlikni oshirish bizning ustuvor yo'nalishlarimizdan biridir.</p>
             </div>
             <div className="service-card">
-              <div className="service-icon">🚀</div>
+              <div className="service-icon">
+                <div className="icon-circle">
+                  <span>🚀</span>
+                </div>
+              </div>
               <h3>Professional xizmat</h3>
-              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt.</p>
+              <p>Yuqori sifatli xizmat va mijozlar bilan uzoq muddatli hamkorlik o'rnatishga intilamiz.</p>
             </div>
           </div>
         </div>
@@ -155,84 +198,61 @@ function Home() {
 
       {/* Portfolio Section */}
       <section className="portfolio">
+        <h2 className="section-title">Bizning loyihalarimiz</h2>
         <div className="container">
-          <h2 className="section-title">Bizlardan loyihalarimiz</h2>
-          <div className="portfolio-grid">
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 1" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
+          <div  className="portfolio-grid">
+          {companydata.map((item) => {
+             return(
+                  <div key={item.id} className="portfolio-item">
+                    <img src={item.image} />
+                    <div className="portfolio-overlay">
+                      <h4>{item.title}</h4>
+                      <p>{item.description}</p>
+                      <a href={item.link} >malumotni to'liq kurish</a>
+                    </div>
+                  </div>
+             )
+            })}
             </div>
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 2" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
             </div>
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 3" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
-            </div>
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 4" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
-            </div>
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 5" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
-            </div>
-            <div className="portfolio-item">
-              <img src="/placeholder.svg?height=300&width=400" alt="Project 6" />
-              <div className="portfolio-overlay">
-                <h4>LOYIHALAR NOMI YOZILADI</h4>
-              </div>
-            </div>
-          </div>
-          <button className="view-all-btn">Barchasini ko'rish</button>
-        </div>
       </section>
+
+
 
       {/* Additional Services */}
       <section className="additional-services">
         <div className="container">
           <h2 className="section-title">Bizning xizmatlar</h2>
-          <div className="services-grid">
-            <div className="service-card">
-              <div className="service-icon blue">📱</div>
-              <h3>Veb saytlar</h3>
-              <p>Professional veb saytlar yaratamiz</p>
+          <div className="additional-services-grid">
+            <div className="additional-service-item">
+              <div className="service-icon-small">🌐</div>
+              <h4>Veb saytlar</h4>
+              <p>Zamonaviy va responsive veb-saytlar yaratamiz</p>
             </div>
-            <div className="service-card">
-              <div className="service-icon red">🎨</div>
-              <h3>UX/UI Dizayn</h3>
-              <p>Zamonaviy dizaynlar yaratamiz</p>
+            <div className="additional-service-item">
+              <div className="service-icon-small">📱</div>
+              <h4>UX/UI Dizayn</h4>
+              <p>Foydalanuvchi tajribasini yaxshilaydigan dizaynlar</p>
             </div>
-            <div className="service-card">
-              <div className="service-icon yellow">📱</div>
-              <h3>Mobil ilovalar</h3>
-              <p>iOS va Android ilovalar</p>
+            <div className="additional-service-item">
+              <div className="service-icon-small">💼</div>
+              <h4>Mobil ilovalar</h4>
+              <p>iOS va Android uchun mobil ilovalar ishlab chiqamiz</p>
             </div>
-            <div className="service-card">
-              <div className="service-icon green">💻</div>
-              <h3>SMM</h3>
-              <p>Ijtimoiy tarmoqlar boshqaruvi</p>
+            <div className="additional-service-item">
+              <div className="service-icon-small">🎨</div>
+              <h4>SMM</h4>
+              <p>Ijtimoiy tarmoqlarda marketing va reklama</p>
             </div>
-            <div className="service-card">
-              <div className="service-icon purple">📊</div>
-              <h3>Grafik dizayn</h3>
-              <p>Kreativ grafik dizaynlar</p>
+            <div className="additional-service-item">
+              <div className="service-icon-small">📊</div>
+              <h4>Grafik dizayn</h4>
+              <p>Professional grafik dizayn xizmatlari</p>
             </div>
-            <div className="service-card">
-              <div className="service-icon orange">🚀</div>
-              <h3>Mobil dizayn</h3>
-              <p>Mobil uchun optimallashtirilgan</p>
+            <div className="additional-service-item">
+              <div className="service-icon-small">🔧</div>
+              <h4>Texnik qo'llab-quvvatlash</h4>
+              <p>24/7 texnik yordam va qo'llab-quvvatlash</p>
             </div>
           </div>
         </div>
@@ -243,67 +263,78 @@ function Home() {
         <div className="container">
           <h2 className="section-title">Blog yangilikalarimiz</h2>
           <div className="blog-grid">
-            <article className="blog-card">
-              <img src="/placeholder.svg?height=200&width=300" alt="Blog 1" />
-              <div className="blog-content">
-                <h3>Blog sarlavhasi</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                <div className="blog-meta">
-                  <span>📅 12 Dekabr</span>
-                  <span>👁 1.2k</span>
+            {blogs.map((blog) => (
+              <div key={blog.id} className="blog-card">
+                <img src={blog.image} alt={blog.title} />
+                <div className="blog-content">
+                  <span className="blog-date">{blog.date}</span>
+                  <h4>{blog.title}</h4>
+                  <p>{blog.description}</p>
                 </div>
               </div>
-            </article>
-            <article className="blog-card">
-              <img src="/placeholder.svg?height=200&width=300" alt="Blog 2" />
-              <div className="blog-content">
-                <h3>Blog sarlavhasi</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                <div className="blog-meta">
-                  <span>📅 10 Dekabr</span>
-                  <span>👁 856</span>
-                </div>
-              </div>
-            </article>
-            <article className="blog-card">
-              <img src="/placeholder.svg?height=200&width=300" alt="Blog 3" />
-              <div className="blog-content">
-                <h3>Blog sarlavhasi</h3>
-                <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit...</p>
-                <div className="blog-meta">
-                  <span>📅 8 Dekabr</span>
-                  <span>👁 2.1k</span>
-                </div>
-              </div>
-            </article>
+            ))}
           </div>
         </div>
       </section>
+
+
 
       {/* Team Section */}
       <section className="team">
         <div className="container">
           <h2 className="section-title">Bizning jamoa</h2>
           <div className="team-grid">
-            <div className="team-member">
-              <img src="/placeholder.svg?height=200&width=200" alt="Team Member 1" />
-              <h4>Sardorbek Boboyev</h4>
-              <p>Frontend Developer</p>
+            {team.map((member) => (
+              <div key={member.id} className="team-member">
+                <img src={member.image} alt={member.full_name} />
+                <h4>{member.full_name}</h4>
+                <p>{member.position}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Section */}
+      <section className="contact">
+        <div className="container">
+          <div className="contact-content">
+            <div className="contact-text">
+              <h2>
+                Sayt bo'yicha qo'shimcha ma'lumot olishingiz uchun quyidagi raqamga qo'ng'iroq qiling yoki telegramda
+                yozing
+              </h2>
+              <div className="contact-info">
+                <div className="contact-item">
+                  <span>Telefon raqami:</span>
+                  <p>+998 99 123 45 67</p>
+                </div>
+                <div className="contact-item">
+                  <span>Qo'shimcha ma'lumot olish uchun telegramda yozing:</span>
+                  <p>@username</p>
+                </div>
+              </div>
             </div>
-            <div className="team-member">
-              <img src="/placeholder.svg?height=200&width=200" alt="Team Member 2" />
-              <h4>Sardorbek Boboyev</h4>
-              <p>UI/UX Designer</p>
-            </div>
-            <div className="team-member">
-              <img src="/placeholder.svg?height=200&width=200" alt="Team Member 3" />
-              <h4>Sardorbek Boboyev</h4>
-              <p>Backend Developer</p>
-            </div>
-            <div className="team-member">
-              <img src="/placeholder.svg?height=200&width=200" alt="Team Member 4" />
-              <h4>Sardorbek Boboyev</h4>
-              <p>Project Manager</p>
+            <div className="contact-awards">
+              <h3>NIMA UCHUN BIZNI TANLAYSIZ?</h3>
+              <div className="awards-grid">
+                <div className="award-item">
+                  <div className="award-icon gold"></div>
+                  <span>Oltin medal</span>
+                </div>
+                <div className="award-item">
+                  <div className="award-icon silver"></div>
+                  <span>Kumush medal</span>
+                </div>
+                <div className="award-item">
+                  <div className="award-icon bronze"></div>
+                  <span>Bronza medal</span>
+                </div>
+                <div className="award-item">
+                  <div className="award-icon red"></div>
+                  <span>Maxsus mukofot</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -313,64 +344,18 @@ function Home() {
       <footer className="footer">
         <div className="container">
           <div className="footer-content">
-            <div className="footer-left">
-              <h3>
-                Sayt bo'yicha qo'shimcha ma'lumot olishingiz uchun quyidagi raqamlar bilan bog'lanishingiz mumkin:
-              </h3>
-              <div className="footer-contact">
-                <div className="contact-item">
-                  <span>📞 +998 97 777 77 77</span>
-                </div>
-                <div className="contact-item">
-                  <span>📧 info@company.uz</span>
-                </div>
-              </div>
-              <div className="footer-question">
-                <h4>Qanday savollaringiz loyihalarimiz bo'yicha?</h4>
-                <ul>
-                  <li>✓ SMM xizmat</li>
-                  <li>✓ Grafik dizayn</li>
-                  <li>✓ Veb sayt yaratish</li>
-                  <li>✓ Logotip va brendbook</li>
-                  <li>✓ Mobil ilovalar</li>
-                  <li>✓ UX/UI dizayn</li>
-                  <li>✓ SEO xizmati</li>
-                  <li>✓ SMM xizmat</li>
-                </ul>
-              </div>
+            <div className="footer-logo">
+              <h3>LOGO</h3>
             </div>
-            <div className="footer-right">
-              <h4>NIMLAR KERAK BO'LADI?</h4>
-              <div className="service-icons">
-                <div className="service-icon-item">
-                  <div className="icon-circle brown">🎯</div>
-                  <span>Aniqlik bilan</span>
-                </div>
-                <div className="service-icon-item">
-                  <div className="icon-circle beige">⚡</div>
-                  <span>Tez ishlar</span>
-                </div>
-                <div className="service-icon-item">
-                  <div className="icon-circle white">💼</div>
-                  <span>Professional</span>
-                </div>
-                <div className="service-icon-item">
-                  <div className="icon-circle red">❤️</div>
-                  <span>Sevgi</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="footer-bottom">
-            <div className="footer-logo">LOGO</div>
             <div className="footer-info">
-              <p>Biz sizning biznesingizni rivojlantirishga yordam beramiz</p>
-              <div className="footer-contacts">
-                <span>📞 +998 97 777 77 77</span>
-                <span>📧 info@company.uz</span>
+              <p>Bizning kompaniya professional veb-saytlar va mobil ilovalar yaratish bo'yicha xizmat ko'rsatadi.</p>
+              <div className="footer-contact">
+                <p>📞 +998 99 123 45 67</p>
+                <p>📧 info@company.uz</p>
+                <p>📍 Toshkent, O'zbekiston</p>
               </div>
             </div>
-            <div className="social-links">
+            <div className="footer-social">
               <a href="#" className="social-link">
                 📘
               </a>
@@ -389,3 +374,105 @@ function Home() {
 }
 
 export default Home
+
+
+
+
+
+{/* import { useState, useEffect } from "react"; */}
+{/* import "./Style/home.css"; */}
+
+
+// {/*   return ( */}
+// {/*     <> */}
+// {/*        */}{/* Header */}
+// {/*       <header className="header"> */}
+// {/*         <div className="container"> */}
+// {/*           <div className="header-content"> */}
+// {/*             <div className="logo"> */}
+// {/*               <h2>Logo</h2> */}
+// {/*             </div> */}
+// {/*             <nav className="nav"> */}
+// {/*               <a href="#" className="nav-link">Kompaniya</a> */}
+// {/*               <a href="#" className="nav-link">Loyihalar</a> */}
+// {/*               <a href="#" className="nav-link">Xizmatlar</a> */}
+// {/*               <a href="#" className="nav-link">Kontaktlar</a> */}
+// {/*             </nav> */}
+// {/*             <div className="header-contact"> */}
+// {/*               <span className="phone">+998 99 123 45 67</span> */}
+// {/*               <button className="cta-button">Bog'lanish</button> */}
+// {/*             </div> */}
+// {/*           </div> */}
+// {/*         </div> */}
+// {/*       </header> */}
+//
+// {/*        */}{/* Hero Section */}
+// {/*       <section className="hero"> */}
+// {/*         <div className="container"> */}
+// {/*           <div className="hero-content"> */}
+// {/*             <div className="hero-text"> */}
+// {/*               <h1>Biz veb-saytlar, ilovalarni ishlab chiqamiz</h1> */}
+// {/*               <p> */}
+// {/*                 Zamonaviy texnologiyalar yordamida sizning biznesingiz uchun professional veb-saytlar va mobil ilovalar */}
+// {/*                 yaratamiz. */}
+// {/*               </p> */}
+// {/*               <button className="hero-button">Batafsil</button> */}
+// {/*             </div> */}
+// {/*             <div className="hero-visual"> */}
+// {/*               <div className="hero-circle"></div> */}
+// {/*             </div> */}
+// {/*           </div> */}
+// {/*         </div> */}
+// {/*       </section> */}
+//
+// {/*        */}{/* Portfolio Section */}
+// {/*       <section className="portfolio"> */}
+// {/*         <h2 className="section-title">Bizning loyihalarimiz</h2> */}
+// {/*         <div className="container"> */}
+// {/*           <div className="portfolio-grid"> */}
+// {/*             {companydata.map((item) => ( */}
+// {/*               <div key={item.id} className="portfolio-item"> */}
+// {/*                 <img src={item.image} alt={item.title} /> */}
+// {/*                 <div className="portfolio-overlay"> */}
+// {/*                   <h4>{item.title}</h4> */}
+// {/*                   <p>{item.description}</p> */}
+// {/*                   <a href={item.link}>Ma'lumotni to'liq ko'rish</a> */}
+// {/*                 </div> */}
+// {/*               </div> */}
+// {/*             ))} */}
+// {/*           </div> */}
+// {/*         </div> */}
+// {/*       </section> */}
+//
+//
+//
+//
+//
+// {/*        */}{/* Footer */}
+// {/*       <footer className="footer"> */}
+// {/*         <div className="container"> */}
+// {/*           <div className="footer-content"> */}
+// {/*             <div className="footer-logo"> */}
+// {/*               <h3>LOGO</h3> */}
+// {/*             </div> */}
+// {/*             <div className="footer-info"> */}
+// {/*               <p>Bizning kompaniya professional veb-saytlar va mobil ilovalar yaratish bo'yicha xizmat ko'rsatadi.</p> */}
+// {/*               <div className="footer-contact"> */}
+// {/*                 <p>📞 +998 99 123 45 67</p> */}
+// {/*                 <p>📧 info@company.uz</p> */}
+// {/*                 <p>📍 Toshkent, O'zbekiston</p> */}
+// {/*               </div> */}
+// {/*             </div> */}
+// {/*             <div className="footer-social"> */}
+// {/*               <a href="#" className="social-link">📘</a> */}
+// {/*               <a href="#" className="social-link">📷</a> */}
+// {/*               <a href="#" className="social-link">🐦</a> */}
+// {/*             </div> */}
+// {/*           </div> */}
+// {/*         </div> */}
+// {/*       </footer> */}
+// {/*     </> */}
+// {/*   ); */}
+// {/* } */}
+//
+// {/* export default Home; */}
