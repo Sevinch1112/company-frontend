@@ -1,19 +1,19 @@
 "use client"
-
 import { useState, useEffect } from "react"
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import LoginForm from "./components/LoginForm"
 import Dashboard from "./components/Dashboard"
+import Home from "./components/Home"
 import "./App.css"
 
-function App() {
+function AdminRoute() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const token = localStorage.getItem("access_token")
     if (token) {
-      // Token mavjudligini tekshirish
-      fetch("http://127.0.0.1:8000/api/superadmin/stats/", {
+      fetch("http://192.168.100.10:8000/api/stats/", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -24,17 +24,26 @@ function App() {
           } else {
             localStorage.removeItem("access_token")
             localStorage.removeItem("refresh_token")
+            localStorage.removeItem("user_data")
           }
         })
         .catch(() => {
           localStorage.removeItem("access_token")
           localStorage.removeItem("refresh_token")
+          localStorage.removeItem("user_data")
         })
         .finally(() => setLoading(false))
     } else {
       setLoading(false)
     }
   }, [])
+
+  const handleLogout = () => {
+    localStorage.removeItem("access_token")
+    localStorage.removeItem("refresh_token")
+    localStorage.removeItem("user_data")
+    setIsAuthenticated(false)
+  }
 
   if (loading) {
     return (
@@ -45,14 +54,22 @@ function App() {
     )
   }
 
+  return isAuthenticated ? (
+    <Dashboard onLogout={handleLogout} />
+  ) : (
+    <LoginForm onLogin={() => setIsAuthenticated(true)} />
+  )
+}
+
+function App() {
   return (
-    <div className="App">
-      {isAuthenticated ? (
-        <Dashboard onLogout={() => setIsAuthenticated(false)} />
-      ) : (
-        <LoginForm onLogin={() => setIsAuthenticated(true)} />
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/admin" element={<AdminRoute />} />
+        <Route path="/login" element={<AdminRoute />} />
+      </Routes>
+    </Router>
   )
 }
 

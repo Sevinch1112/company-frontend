@@ -1,10 +1,10 @@
 "use client"
-
 import { useState, useEffect } from "react"
 import Sidebar from "./Sidebar"
 import StatsOverview from "./StatsOverview"
-import UserManagement from "./UserManagement"
-import ActionLogs from "./ActionLogs"
+import ProjectManagement from "./ProjectManagement"
+import NewsManagement from "./NewsManagement"
+import GroupManagement from "./GroupManagement"
 import "./Dashboard.css"
 
 const Dashboard = ({ onLogout }) => {
@@ -14,8 +14,15 @@ const Dashboard = ({ onLogout }) => {
 
   useEffect(() => {
     const userData = localStorage.getItem("user_data")
-    if (userData) {
-      setUser(JSON.parse(userData))
+    try {
+      if (userData && userData !== "undefined") {
+        setUser(JSON.parse(userData))
+      } else {
+        setUser(null)
+      }
+    } catch (error) {
+      console.error("User data parsing error:", error)
+      setUser(null)
     }
   }, [])
 
@@ -29,7 +36,6 @@ const Dashboard = ({ onLogout }) => {
   return (
     <div className="dashboard">
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
-
       <div className={`main-content ${!sidebarOpen ? "sidebar-closed" : ""}`}>
         <header className="dashboard-header">
           <div className="header-left">
@@ -42,7 +48,6 @@ const Dashboard = ({ onLogout }) => {
             </button>
             <h1>SuperAdmin Panel</h1>
           </div>
-
           <div className="header-right">
             <div className="user-info">
               <div className="user-avatar">{user?.first_name?.charAt(0) || user?.username?.charAt(0) || "A"}</div>
@@ -53,7 +58,6 @@ const Dashboard = ({ onLogout }) => {
                 <span className="user-role">SuperAdmin</span>
               </div>
             </div>
-
             <button className="logout-button" onClick={handleLogout}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
                 <path d="M9 21H5A2 2 0 0 1 3 19V5A2 2 0 0 1 5 3H9" stroke="currentColor" strokeWidth="2" />
@@ -64,11 +68,11 @@ const Dashboard = ({ onLogout }) => {
             </button>
           </div>
         </header>
-
         <main className="dashboard-main">
           {activeTab === "overview" && <StatsOverview />}
-          {activeTab === "users" && <UserManagement />}
-          {activeTab === "logs" && <ActionLogs />}
+          {activeTab === "projects" && <ProjectManagement />}
+          {activeTab === "news" && <NewsManagement />}
+          {activeTab === "groups" && <GroupManagement />}
         </main>
       </div>
     </div>
@@ -76,4 +80,3 @@ const Dashboard = ({ onLogout }) => {
 }
 
 export default Dashboard
-
